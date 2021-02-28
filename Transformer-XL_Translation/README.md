@@ -18,3 +18,5 @@
 
 3. 论文翻译 [PDF版下载]。
 
+4. 部分翻译来自：https://github.com/powerycy/NLP/blob/master/documents/%E6%A8%A1%E5%9E%8B/Transformer-XL.md 在此基础上进行了修改。
+
