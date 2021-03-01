@@ -34,7 +34,7 @@ Transformer-XL在五个数据集上获得了很好的结果，这些数据集从
 
 ### 3 模型
 
-给出一个 tokens 为 $\mathrm{x}=(x_1,\cdots,x_T)$ 的语料，语言模型的任务是估计联合概率 $P(\mathrm{x})$,通常被自回归因子分解为 $P(\mathrm{x})=\prod_tP(x_t|\mathrm{x}*{<t})$。通过因子分解，问题简化为估计每个条件因子。在这项工作中，我们坚持使用标准的神经方法来建模条件概率。具体来说，使用一个可训练的神经网络将上下文$\mathrm{x}*{<t}$编码成一个固定大小的隐藏状态，并与词嵌入相乘得到 logits,然后将 logits 输入 Softmax 函数，生成关于下个 token 的类别的概率分布。
+给出一个 tokens 为 $\mathrm{x}=(x_1,\cdots,x_T)$ 的语料，语言模型的任务是估计联合概率 $P(\mathrm{x})$,通常被自回归因子分解为 $P(\mathrm{x})=\prod_tP(x_t|\mathrm{x}_{<t})$。通过因子分解，问题简化为估计每个条件因子。在这项工作中，我们坚持使用标准的神经方法来建模条件概率。具体来说，使用一个可训练的神经网络将上下文$\mathrm{x}_{<t}$编码成一个固定大小的隐藏状态，并与词嵌入相乘得到 logits，然后将 logits 输入 Softmax 函数，生成关于下个 token 的类别的概率分布。
 
 #### 3.1 普通的Transformer模型
 
@@ -52,7 +52,7 @@ Transformer-XL在五个数据集上获得了很好的结果，这些数据集从
 $$
 \begin{aligned}
 
-& \widetilde{\mathrm{h}}_{\tau+1}^{n-1} = [\mathrm{SG}(\mathrm{h}*{\tau}^{n-1}) \circ \mathrm{h}_{\tau+1}^{n-1}] \\
+& \widetilde{\mathrm{h}}_{\tau+1}^{n-1} = [\mathrm{SG}(\mathrm{h}_{\tau}^{n-1}) \circ \mathrm{h}_{\tau+1}^{n-1}] \\
 
 & \mathrm{q}_{\tau+1}^n,\mathrm{k}_{\tau+1}^n,\mathrm{v}_{\tau+1}^n = \mathrm{h}_{\tau+1}^{n-1} \mathrm{W}_q^{\top},\widetilde{\mathrm{h}}_{\tau+1}^{n-1} \mathrm{W}_k^{\top},\widetilde{\mathrm{h}}_{\tau+1}^{n-1}\mathrm{W}_v^{\top} \\
 
@@ -72,26 +72,26 @@ $$
 
 #### 3.3 相对位置编码
 
-虽然我们发现上一小节中提出的想法非常吸引人，但是为了重用隐藏状态，我们还y有一个关键的技术挑战没有解决。就是，当我们重用状态时，如何保持位置信息的一致性？回想一下，在标准 Transformer 中，序列顺序信息由一组位置编码提供，记为 $\mathrm{U} \in \mathbb{R}^{L_{\mathrm{max}} \times d}$。其中第 $i$ 行 $\mathrm{U}*i$ 对应一句话（就是一个分段）中第 $i$ 个绝对位置，$L*{\mathrm{max}}$ 规定了要建模的最大可能长度。然后，Transformer 的实际输入是词嵌入和位置编码在按位置的和。如果我们简单地将这个位置编码与我们的递归机制相适应，则隐藏状态序列将由下式计算：
+虽然我们发现上一小节中提出的想法非常吸引人，但是为了重用隐藏状态，我们还y有一个关键的技术挑战没有解决。就是，当我们重用状态时，如何保持位置信息的一致性？回想一下，在标准 Transformer 中，序列顺序信息由一组位置编码提供，记为 $\mathrm{U} \in \mathbb{R}^{L_{\mathrm{max}} \times d}$。其中第 $i$ 行 $\mathrm{U}_i$ 对应一句话（就是一个分段）中第 $i$ 个绝对位置，$L_{\mathrm{max}}$ 规定了要建模的最大可能长度。然后，Transformer 的实际输入是词嵌入和位置编码在按位置的和。如果我们简单地将这个位置编码与我们的递归机制相适应，则隐藏状态序列将由下式计算：
 $$
-\begin{aligned} & \mathrm{h}*{\tau+1} = f(\mathrm{h}*\tau,\mathrm{E}*{\mathrm{s}*{\tau+1}}+\mathrm{U}*{1:L}) \\ & \mathrm{h}*{\tau} = f(\mathrm{h}*{\tau-1},\mathrm{E}*{\mathrm{s}*{\tau}}+\mathrm{U}*{1:L})
+\begin{aligned} & \mathrm{h}_{\tau+1} = f(\mathrm{h}_\tau,\mathrm{E}_{\mathrm{s}_{\tau+1}}+\mathrm{U}_{1:L}) \\ & \mathrm{h}_{\tau} = f(\mathrm{h}_{\tau-1},\mathrm{E}_{\mathrm{s}_{\tau}}+\mathrm{U}_{1:L})
 
-\end{aligned} 
+\end{aligned}
 $$
 
 
-其中 $\mathrm{E}*{\mathrm{s}*{\tau}} \in \mathbb{R}^{L \times d}$ 代表序列 $\mathrm{s}*\tau$的词嵌入，$f$ 表示转换函数。注意，$\mathrm{E}*{\mathrm{s}*{\tau}}$ 和 $\mathrm{E}*{\mathrm{s}*{\tau+1}}$ 都与相同的位置编码 $\mathrm{U}*{1:L}$ 有关。因此，对任何$j=1,\cdots,L$，模型都没有信息去区分 $x_{\tau,j}$ 和 $x_{\tau+1,j}$ （第$\tau$段第$j$个字和第$\tau+1$段第$j$个字）的位置差别，导致完全的性能损失。
+其中 $\mathrm{E}_{\mathrm{s}_{\tau}} \in \mathbb{R}^{L \times d}$ 代表序列 $\mathrm{s}_\tau$的词嵌入，$f$ 表示转换函数。注意，$\mathrm{E}_{\mathrm{s}_{\tau}}$ 和 $\mathrm{E}_{\mathrm{s}_{\tau+1}}$ 都与相同的位置编码 $\mathrm{U}_{1:L}$ 有关。因此，对任何$j=1,\cdots,L$，模型都没有信息去区分 $x_{\tau,j}$ 和 $x_{\tau+1,j}$ （第$\tau$段第$j$个字和第$\tau+1$段第$j$个字）的位置差别，导致完全的性能损失。
 
-为了避免这种失败的模型，其基本思想是只对隐藏状态中的相对位置信息进行编码。从概念上讲，位置编码为模型提供了关于如何收集信息的时间线索或“偏差”，即，去哪里学习。为了达到同样的目的，我们不是在初始 embedding 中静态地加入偏差，而是将相同的信息注入到每一层的注意力评分中。更重要的是，以一种相对的方式来定义时间偏差更直观、更通用。例如，当查询向量 $\mathrm{q}*{\tau,i}$ 关注 key 向量 $\mathrm{k}*{\tau,\le i}$ 时，不需要知道每个 key 向量的绝对位置来确定分段（句子）的时间顺序，它就可以知道 每个 key 向量 $\mathrm{k}*{\tau,j}$和它自己 $\mathrm{q}*{\tau,i}$的距离，即 $i-j$。实际上，我们可以创建一组相对位置编码 $\mathrm{R} \in \mathbb{R}^{L_{\mathrm{max}} \times d}$,其中第 $i$ 行 $\mathrm{R}*i$表示两个位置的相对距离$i$。通过动态地将相对距离注入注意力得分中，query 向量可以很容易地通过 $x*{\tau,j}$ 和 $x_{\tau+1,j}$ 的不同距离区分他们,使得状态重用机制可行。同时，我们不会丢失任何时间信息，因为绝对位置可以从相对距离递归地恢复。
+为了避免这种失败的模型，其基本思想是只对隐藏状态中的相对位置信息进行编码。从概念上讲，位置编码为模型提供了关于如何收集信息的时间线索或“偏差”，即，去哪里学习。为了达到同样的目的，我们不是在初始 embedding 中静态地加入偏差，而是将相同的信息注入到每一层的注意力评分中。更重要的是，以一种相对的方式来定义时间偏差更直观、更通用。例如，当查询向量 $\mathrm{q}_{\tau,i}$ 关注 key 向量 $\mathrm{k}_{\tau,\le i}$ 时，不需要知道每个 key 向量的绝对位置来确定分段（句子）的时间顺序，它就可以知道 每个 key 向量 $\mathrm{k}_{\tau,j}$和它自己 $\mathrm{q}_{\tau,i}$的距离，即 $i-j$。实际上，我们可以创建一组相对位置编码 $\mathrm{R} \in \mathbb{R}^{L_{\mathrm{max}} \times d}$,其中第 $i$ 行 $\mathrm{R}_i$表示两个位置的相对距离$i$。通过动态地将相对距离注入注意力得分中，query 向量可以很容易地通过 $x_{\tau,j}$ 和 $x_{\tau+1,j}$ 的不同距离区分他们,使得状态重用机制可行。同时，我们不会丢失任何时间信息，因为绝对位置可以从相对距离递归地恢复。
 
 在此之前，相对位置编码的概念已经在机器翻译（Shaw 等，2018）和音乐生成（Huang 等，2018）的背景下探索过。在这里，我们提供了一个不同的推导，得出了一种新形式的相对位置编码，它不仅与绝对位置编码有一一对应的关系，而且在经验上也有更好的泛化（见第4节）。首先，在标准 Transformer 中，同一段的内 $q_i$ 和 $k_j$的注意力得分可以分解为：
 $$
 \begin{aligned}
 
-\mathrm{A}*{i,j}^{\mathrm{abs}} & = q_i^\top k_j \\ &= (\mathrm{E}*{x_i}+\mathrm{U}*{i})^\top \mathrm{W}\*q^\top \mathrm{W}\*k (\mathrm{E}\*{x_j} + \mathrm{U}\*{j})\\ &= \underbrace{\mathrm{E}*{x_i}^\top \mathrm{W}*q^\top \mathrm{W}\*k \mathrm{E}\*{x_j}}*{(a)}
+\mathrm{A}_{i,j}^{\mathrm{abs}} & = q_i^\top k_j \\ &= (\mathrm{E}_{x_i}+\mathrm{U}_{i})^\top \mathrm{W}_q^\top \mathrm{W}_k (\mathrm{E}_{x_j} + \mathrm{U}_{j})\\ &= \underbrace{\mathrm{E}_{x_i}^\top \mathrm{W}_q^\top \mathrm{W}_k \mathrm{E}_{x_j}}_{(a)}
 
-- \underbrace{\mathrm{E}*{x_i}^\top \mathrm{W}\*q^\top \mathrm{W}\*k \mathrm{U}\*{j}}\*{(b)} \\ &+ \underbrace{\mathrm{U}*{i}^\top \mathrm{W}*q^\top \mathrm{W}\*k \mathrm{E}\*{x_j}}*{(c)}
-- \underbrace{\mathrm{U}_{i}^\top \mathrm{W}*q^\top \mathrm{W}\*k \mathrm{U}\*{j}}*{(d)}
+- \underbrace{\mathrm{E}_{x_i}^\top \mathrm{W}_q^\top \mathrm{W}_k \mathrm{U}_{j}}_{(b)} \\ &+ \underbrace{\mathrm{U}_{i}^\top \mathrm{W}_q^\top \mathrm{W}_k \mathrm{E}_{x_j}}_{(c)}
+- \underbrace{\mathrm{U}_{i}^\top \mathrm{W}_q^\top \mathrm{W}_k \mathrm{U}_{j}}_{(d)}
 
 \end{aligned}
 $$
@@ -103,17 +103,17 @@ $$
 
 \mathrm{A}_{i,j}^{\mathrm{rel}}
 
-&= \underbrace{\mathrm{E}*{x_i}^\top \mathrm{W}\*q^\top \mathrm{W}\*{k,E} \mathrm{E}*{x_j}}_{(a)}
+&= \underbrace{\mathrm{E}_{x_i}^\top \mathrm{W}_q^\top \mathrm{W}_{k,E} \mathrm{E}_{x_j}}_{(a)}
 
-- \underbrace{\mathrm{E}*{x_i}^\top \mathrm{W}\*q^\top \mathrm{W}\*{k,R} \mathrm{R}*{i-j}}*{(b)} \\ &+ \underbrace{u^\top\mathrm{W}*{k,E} \mathrm{E}*{x_j}}*{(c)}
-- \underbrace{v^\top \mathrm{W}*{k,R} \mathrm{R}*{i-j}}_{(d)}
+- \underbrace{\mathrm{E}_{x_i}^\top \mathrm{W}_q^\top \mathrm{W}_{k,R} \mathrm{R}_{i-j}}_{(b)} \\ &+ \underbrace{u^\top\mathrm{W}_{k,E} \mathrm{E}_{x_j}}_{(c)}
+- \underbrace{v^\top \mathrm{W}_{k,R} \mathrm{R}_{i-j}}_{(d)}
 
 \end{aligned}
 $$
 
-- 第一个变化是，我们将 $(b)$ 和 $(d)$ 中 key 向量的绝对位置嵌入$\mathrm{U}*j$ 全部替换为相对的 $\mathrm{R}*{i-j}$。这在本质上反应了先验，即只有相对距离才会影响到要关注的地方。注意，$R$ 是一个没有可学习参数的正弦编码矩阵（Vaswani 等，2017）。
+- 第一个变化是，我们将 $(b)$ 和 $(d)$ 中 key 向量的绝对位置嵌入$\mathrm{U}_j$ 全部替换为相对的 $\mathrm{R}_{i-j}$。这在本质上反应了先验，即只有相对距离才会影响到要关注的地方。注意，$R$ 是一个没有可学习参数的正弦编码矩阵（Vaswani 等，2017）。
 - 第二是，我们引入了一个可训练参数 $u \in \mathbb{R}^d$ 来代替 $(c)$项的 query $\mathrm{U}_i^\top \mathrm{W}_q^\top$。在这种情况下，由于所有查询位置的查询向量都是相同的，因此，无论查询位置如何，对不同单词的关注偏差都应该保持不变。同理，在$(d)$项中用可训练参数 $v \in \mathbb{R}^d$ 代替 $\mathrm{U}_i^\top \mathrm{W}_q^\top$。
-- 最后，为了生成基于内容的 key 向量和基于位置的 key 向量，我们故意将两个权值矩阵 $\mathrm{W}*{k,E}$ 和 $\mathrm{W}*{k,E}$ 分离出来。
+- 最后，为了生成基于内容的 key 向量和基于位置的 key 向量，我们故意将两个权值矩阵 $\mathrm{W}_{k,E}$ 和 $\mathrm{W}_{k,E}$ 分离出来。
 
 在新的参数下，每一项都有直观的含义：$(a)$ 表示基于内容的寻址，$(b)$ 捕获了与内容相关的位置偏差，$(c)$ 控制全局内容偏差，$(d)$ 编码了全局位置偏差。
 
@@ -123,29 +123,29 @@ $$
 $$
 \begin{aligned}
 
-\widetilde{\mathrm{h}}*\tau^{n-1} =&[\mathrm{SG}(\mathrm{m}*\tau^{n-1}) \circ \mathrm{h}_\tau^{n-1}] \\
+\widetilde{\mathrm{h}}_\tau^{n-1} =&[\mathrm{SG}(\mathrm{m}_\tau^{n-1}) \circ \mathrm{h}_\tau^{n-1}] \\
 
-\mathrm{q}*\tau^n,\mathrm{k}*\tau^n,\mathrm{v}*\tau^n =& \mathrm{h}*\tau^{n-1} {\mathrm{W}*q^n}^\top,\widetilde{\mathrm{h}}*\tau^{n-1} {\mathrm{W}*{k,E}^n}^\top,\widetilde{\mathrm{h}}*\tau^{n-1} {\mathrm{W}_{v}^n}^\top \\
+\mathrm{q}_\tau^n,\mathrm{k}_\tau^n,\mathrm{v}_\tau^n =& \mathrm{h}_\tau^{n-1} {\mathrm{W}_q^n}^\top,\widetilde{\mathrm{h}}_\tau^{n-1} {\mathrm{W}_{k,E}^n}^\top,\widetilde{\mathrm{h}}_\tau^{n-1} {\mathrm{W}_{v}^n}^\top \\
 
-\mathrm{A}*{\tau,i,j}^n =& {\mathrm{q}*{\tau,i}^n}^\top \mathrm{k}*{\tau,j}^n + {\mathrm{q}*{\tau,i}^n}^\top \mathrm{W}*{k,R}^n \mathrm{R}*{i-j} \\
+\mathrm{A}_{\tau,i,j}^n =& {\mathrm{q}_{\tau,i}^n}^\top \mathrm{k}_{\tau,j}^n + {\mathrm{q}_{\tau,i}^n}^\top \mathrm{W}_{k,R}^n \mathrm{R}_{i-j} \\
 
-&+u^\top \mathrm{k}*{\tau,j} + v^\top\mathrm{W}*{k,R}^n \mathrm{R}_{i-j} \\
+&+u^\top \mathrm{k}_{\tau,j} + v^\top\mathrm{W}_{k,R}^n \mathrm{R}_{i-j} \\
 
-\mathrm{a}*\tau^n =& \mathrm{Masked-Softmax}(\mathrm{A}*\tau^n)\mathrm{v}_\tau^n \\
+\mathrm{a}_\tau^n =& \mathrm{Masked-Softmax}(\mathrm{A}_\tau^n)\mathrm{v}_\tau^n \\
 
-\mathrm{o}*\tau^n =& \mathrm{LayerNorm}(\mathrm{Linear}(\mathrm{a}*\tau^n)+\mathrm{h}_\tau^{n-1}) \\
+\mathrm{o}_\tau^n =& \mathrm{LayerNorm}(\mathrm{Linear}(\mathrm{a}_\tau^n)+\mathrm{h}_\tau^{n-1}) \\
 
-\mathrm{h}*\tau^n =& \mathrm{Positionwise-Feed-Forward}(\mathrm{o}*\tau^n)
+\mathrm{h}_\tau^n =& \mathrm{Positionwise-Feed-Forward}(\mathrm{o}_\tau^n)
 
 \end{aligned}
 $$
 (注意：论文中的公式$\mathrm{A}_{\tau,i,j}^n$应该是少打印了个$n$，应该是
 $$
-\begin{aligned} \mathrm{A}*{\tau,i,j}^n =& {\mathrm{q}*{\tau,i}^n}^\top \mathrm{k}*{\tau,j}^n + {\mathrm{q}*{\tau,i}^n}^\top \mathrm{W}*{k,R}^n \mathrm{R}*{i-j} \\
+\begin{aligned} \mathrm{A}_{\tau,i,j}^n =& {\mathrm{q}_{\tau,i}^n}^\top \mathrm{k}_{\tau,j}^n + {\mathrm{q}_{\tau,i}^n}^\top \mathrm{W}_{k,R}^n \mathrm{R}_{i-j} \\
 
-&+u^\top \mathrm{k}*{\tau,j}^n + v^\top\mathrm{W}*{k,R}^n \mathrm{R}_{i-j} \end{aligned} )
+&+u^\top \mathrm{k}_{\tau,j}^n + v^\top\mathrm{W}_{k,R}^n \mathrm{R}_{i-j} \end{aligned} )
 $$
-$\mathrm{h}*\tau^0 := \mathrm{E}*{\mathrm{s}*\tau}$ 定义为词向量序列。此外，值得一提的是，计算$\mathrm{A}$的一种幼稚的方式是计算所有$(i,j)$对的$\mathrm{W}*{k,R}^n \mathrm{R}_{i-j}$，花费的代价是序列长度的二次方。然而，注意到 $i-j$的值只在0到序列长度之间取值，我们再附录B中给出了一个简单的计算过程，它将代价降低为序列长度的线性。（附录B 参考论文中的附录B吧，论文链接在最后的参考1中）
+$\mathrm{h}_\tau^0 := \mathrm{E}_{\mathrm{s}_\tau}$ 定义为词向量序列。此外，值得一提的是，计算$\mathrm{A}$的一种幼稚的方式是计算所有$(i,j)$对的$\mathrm{W}_{k,R}^n \mathrm{R}_{i-j}$，花费的代价是序列长度的二次方。然而，注意到 $i-j$的值只在0到序列长度之间取值，我们再附录B中给出了一个简单的计算过程，它将代价降低为序列长度的线性。（附录B 参考论文中的附录B吧，论文链接在最后的参考1中）。
 
 ### 4 实验
 
@@ -191,7 +191,7 @@ Khandelwal等(2018)提出了一种评估序列模型有效上下文长度(Effect
 
 #### 4.4 文本生成
 
-只在中等大小的 WikiText-103 上进行了训练，Transforme-XL 已经能够生成具有数千个 tokens 的相对连贯的文章，而无需手动调整（cherry picking），尽管存在一些小缺陷。样品请参考附录E。（参考论文中的附录E吧，论文链接见参考1）
+只在中等大小的 WikiText-103 上进行了训练，Transforme-XL 已经能够生成具有数千个 tokens 的相对连贯的文章，而无需手动调整（cherry picking），尽管存在一些小缺陷。样品请参考附录E。（参考论文中的附录）
 
 #### 4.5 速度评估
 
