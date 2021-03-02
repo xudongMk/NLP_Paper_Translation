@@ -1,12 +1,12 @@
 ## Transformer-XL: Attentive Language Models Beyond a Fixed-Length Context
 
-**Zihang Dai***∗*12**, Zhilin Yang***∗*12**, Yiming Yang**1 **, Jaime Carbonell**1**,**
+​                                                               **Zihang Dai***∗*12**, Zhilin Yang***∗*12**, Yiming Yang**1 **, Jaime Carbonell**1**,**
 
-**Quoc V. Le**2 **, Ruslan Salakhutdinov**1 
+​                                                                             **Quoc V. Le**2 **, Ruslan Salakhutdinov**1 
 
-1Carnegie Mellon University, 2Google Brain
+​                                                                        1Carnegie Mellon University, 2Google Brain
 
-{dzihang,zhiliny,yiming,jgc,rsalakhu}@cs.cmu.edu, qvl@google.com
+​                                                                 {dzihang,zhiliny,yiming,jgc,rsalakhu}@cs.cmu.edu, qvl@google.com
 
 ### 摘要
 
@@ -26,7 +26,7 @@ Transformer-XL在五个数据集上获得了很好的结果，这些数据集从
 
 ### 2 相关工作
 
-在过去的几年里，语言建模领域见证了许多重大的进步，包括但不限于设计新的架构来更好地编码上下文(Bengio 等， 2003;Mikolov 等，2010;Merity 等，2016;Al-Rfou 等，2018)，改进正则化和优化算法(Gal 和 Ghahramani,2016)，加快 Softmax 计算(Grave 等，2016)，丰富输出分布家族(Yang 等，2017)。
+在过去的几年里，语言建模领域见证了许多重大的进步，包括但不限于设计新的架构来更好地编码上下文(Bengio 等，2003;Mikolov 等，2010; Merity 等，2016; Al-Rfou 等，2018)，改进正则化和优化算法(Gal and Ghahramani，2016)，加快 Softmax 计算(Grave 等，2016)，丰富输出分布家族(Yang 等，2017)。
 
 为了在语言建模中捕获远程上下文，一直以来的方式是直接将更广泛上下文的表征作为附加输入输入到网络中。目前的工作从手动定义上下文表征到依赖从数据中学到的文档级主题。
 
@@ -113,7 +113,7 @@ $$
 
 - 第一个变化是，我们将 $(b)$ 和 $(d)$ 中 key 向量的绝对位置嵌入$\mathrm{U}_j$ 全部替换为相对的 $\mathrm{R}_{i-j}$。这在本质上反应了先验，即只有相对距离才会影响到要关注的地方。注意，$R$ 是一个没有可学习参数的正弦编码矩阵（Vaswani 等，2017）。
 - 第二是，我们引入了一个可训练参数 $u \in \mathbb{R}^d$ 来代替 $(c)$项的 query $\mathrm{U}_i^\top \mathrm{W}_q^\top$。在这种情况下，由于所有查询位置的查询向量都是相同的，因此，无论查询位置如何，对不同单词的关注偏差都应该保持不变。同理，在$(d)$项中用可训练参数 $v \in \mathbb{R}^d$ 代替 $\mathrm{U}_i^\top \mathrm{W}_q^\top$。
-- 最后，为了生成基于内容的 key 向量和基于位置的 key 向量，我们故意将两个权值矩阵 $\mathrm{W}_{k,E}$ 和 $\mathrm{W}_{k,E}$ 分离出来。
+- 最后，为了生成基于内容的 key 向量和基于位置的 key 向量，将两个权值矩阵 $\mathrm{W}_{k,E}$ 和 $\mathrm{W}_{k,E}$ 分离出来。
 
 在新的参数下，每一项都有直观的含义：$(a)$ 表示基于内容的寻址，$(b)$ 捕获了与内容相关的位置偏差，$(c)$ 控制全局内容偏差，$(d)$ 编码了全局位置偏差。
 
@@ -145,57 +145,61 @@ $$
 
 &+u^\top \mathrm{k}_{\tau,j}^n + v^\top\mathrm{W}_{k,R}^n \mathrm{R}_{i-j} \end{aligned} )
 $$
-$\mathrm{h}_\tau^0 := \mathrm{E}_{\mathrm{s}_\tau}$ 定义为词向量序列。此外，值得一提的是，计算$\mathrm{A}$的一种幼稚的方式是计算所有$(i,j)$对的$\mathrm{W}_{k,R}^n \mathrm{R}_{i-j}$，花费的代价是序列长度的二次方。然而，注意到 $i-j$的值只在0到序列长度之间取值，我们再附录B中给出了一个简单的计算过程，它将代价降低为序列长度的线性。（附录B 参考论文中的附录B吧，论文链接在最后的参考1中）。
+$\mathrm{h}_\tau^0 := \mathrm{E}_{\mathrm{s}_\tau}$ 定义为词向量序列。此外，值得一提的是，计算$\mathrm{A}$的一种幼稚的方式是计算所有$(i,j)$对的$\mathrm{W}_{k,R}^n \mathrm{R}_{i-j}$，花费的代价是序列长度的二次方。然而，注意到 $i-j$的值只在0到序列长度之间取值，我们再附录B中给出了一个简单的计算过程，它将代价降低为序列长度的线性。
 
 ### 4 实验
 
 #### 4.1 主要结果
 
-我们将 Transformer-XL 在多种数据集上建立字级别和词级别的语言建模以便与最先进的系统进行比较，包括 WikiText-103(Merity 等，2016），enwik8(LLC,2009)，text8(LLC,2009)，One Billion Word(Chelba 等，2013)和 Penn Treebank(Mikolov 和 Zweig,2012)。
+我们将 Transformer-XL 在多种数据集上建立字符级别和词级别的语言模型以便与SOTA模型进行比较，包括 WikiText-103（Merity 等，2016），enwik8（LLC,2009），text8（LLC,2009），One Billion Word（Chelba 等，2013）和 Penn Treebank（Mikolov and Zweig, 2012）。
 
-WikiText-103是最大的具有长期依赖性的单词级语言建模基准。它包含来自 28K 篇文章的 103M 训练词汇，平均每篇文章3.6K个词，这可以测试长期依赖模型的能力。我们在训练期间将注意力长度设置为384，在评估期间将注意力长度设置为1600。我们采用自适应 soft-max 和输入表征（Baevski 和 Auli,2018;Grave 等，2016）如表1所示，TransformerXL将之前的state-of-the - art (SoTA) perplexity 从 20.5 减少到 18.3，这说明TransformerXL架构的优越性。
+WikiText-103是最大的具有长期依赖性的单词级语言基准模型的数据集。该数据集包含来自 28K 篇文章的 103M 训练词汇，平均每篇文章3.6K个词，这可以测试长期依赖模型的能力。在训练期间将注意力长度设置为384，在评估期间将注意力长度设置为1600。我们采用自适应 soft-max 和输入表征（Baevski 和 Auli,2018;Grave 等，2016）。如表1所示，Transformer-XL将之前的SOTA模型的perplexity度从 20.5 减少到 18.3，这说明Transformer-XL架构的优越性。
 
-数据集 enwik8 包含 100M 字节未处理的 Wikipedia 文本。我们将我们的架构与表2中以前的结果进行了比较。在模型大小限制下，12层 Transformer-XL 获得了一个新的 SoTA 结果，比 Al-Rfou 等人(2018)的12层 Transformer 高出0.05，而两种 Transformer 的变体都比传统的基于 RNN 的模型有较大的提升。值得注意的是，我们的12层架构实现了与 Al-Rfou 等人(2018)的64层网络相同的结果，只使用了17%的参数预算。为了观察增大模型大小 是否能获得更好的性能，我们训练了18层和24层 Transformer-XLs，训练时的注意长度为784，评估时的注意长度为3800，我们得到了一个新的 SoTA 结果，我们的方法是第一个在广泛研究的字符级基准上突破1.0的方法。与 Al-Rfou 等人(2018)不同，Transformer-XL 不需要任何辅助损失，因此所有的收益都归功于更好的架构。
+数据集 enwik8 包含 100M 字符级未处理的 Wikipedia 文本。我们将我们的架构与表2中以前的结果进行了比较。在模型大小限制下，12层 的Transformer-XL 获得了一个新的 SOTA 结果，比 Al-Rfou 等人(2018)的12层 Transformer 高出0.05，而两种 Transformer 的变体都比传统的基于 RNN 的模型有较大的提升。值得注意的是，我们的12层架构实现了与 Al-Rfou 等人(2018)的64层网络相同的结果，只使用了17%的参数。为了观察增大模型大小 是否能获得更好的性能，我们训练了18层和24层 Transformer-XLs，训练时的注意长度设置为784，评估时的注意长度为3800，我们得到了一个新的 SOTA 结果，我们的模型是第一个在广泛研究的字符级基准上突破1.0的方法。与 Al-Rfou 等人(2018)不同，Transformer-XL 不需要任何辅助损失（auxiliary losses），当然所有的收益都归功于更好的架构。
 
-与enwik8类似但不同的是，text8 包含 100M 经过处理的 Wikipedia 字符，这些字符是通过小写化文本并删除除26个a到z的字母和空格之外的任何字符创建的。由于相似之处，我们简单地将 enwik8 上的最佳模型和相同的超参数应用在 text8 上，而无需进一步调整。表3总结了与以往方法的比较。同样，Transformer-XL 以明显的优势实现了新的 SoTA 结果。
+与enwik8类似但不同的是，text8数据集包含 100M 经过小写化文本并删除除26个a到z的字母和空格之外的其他字符的 Wikipedia 字符。由于与enwik8相似，我们简单地将 enwik8 上的最佳模型和相同的超参数应用在 text8 上，而无需进一步调整。表3总结了与以往方法的比较。同样，Transformer-XL以明显的优势实现了新的 SOTA 结果。
 
-One Billion Word 并没有保留任何长期的依赖关系，因为句子已经被打乱了。因此，该数据集主要测试短期依赖建模的能力。Transformer-XL 与其他方法的比较见表4。虽然 Transformer-XL 的设计主要是为了更好地捕获长期依赖，但它显著地将单模型 SoTA 从 23.7 提高到了 21.8。具体来说，Transformer-XL 明显优于使用普通 Transformer 的当代方法(Baevski和Auli, 2018)，表明Transformer-XL的优势可以推广到短序列建模。
+One Billion Word 并没有保留任何长期的依赖关系，因为句子已经被打乱了。因此，该数据集主要测试短期依赖建模的能力。Transformer-XL与其他方法的比较见表4。虽然 Transformer-XL 的设计主要是为了更好地捕获长期依赖，但它显著地将单模型SOTA从 23.7提高到了21.8。具体来说，Transformer-XL 明显优于使用普通Transformer的当代方法(Baevski and Auli, 2018)，表明Transformer-XL的优势可以推广到短序列。
 
 ![图3](E:\python_work_space\NLP_Paper_Translation\Transformer-XL_Translation\pic\fig3.png)
 
-我们也在表5中报告了word-level 的penn treebank的结果。与 AWD-LSTM 类似(Merity 等，2017)，我们将变分 dropout 和权重平均值应用于Transformer-XL。通过适当的正则化，Transformer-XL 在没有两步微调的情况下实现了模型中新的 SoTA 结果。Penn Treebank 仅有 1M 训练 tokens,这意味着Transformer-XL 即使在小数据集上也能很好地推广。
+我们也在表5中报告了词级别的Penn Treebank的结果。与AWD-LSTM类似（Merity 等，2017），我们将变分dropout和权重平均值应用于Transformer-XL。通过适当的正则化，Transformer-XL在没有两阶段微调的情况下实现了新的SOTA 结果。Penn Treebank仅有 1M 训练tokens，这意味着Transformer-XL即使在小数据集上也能很好地推广。
 
 ![图4](E:\python_work_space\NLP_Paper_Translation\Transformer-XL_Translation\pic\fig4.png)
 
 #### 4.2 消融研究
 
-我们进行了两组消融研究，以检验在 Transformer-XL 中使用的两种技术的效果:递归机制和新的位置编码方案。
+我们进行了两组消融研究，以检验在Transformer-XL中使用的两种技术的效果:递归机制和新的位置编码方案。
 
-第一个研究是在 WikiText-103 上进行的，它需要建模长期依赖关系。结果见表 6。在比较的编码方案中，Shaw 等(2018)是相对的，而 Vaswani 等(2017)和 Al-Rfou 等(2018)是绝对的。“Full”损失和“half”损失是指将交叉熵损失应用于段中的所有或最近的一半位置。我们发现绝对编码只有在一半损失的情况下才能很好地工作，因为一半损失排除了训练中注意力很短的位置，以便更好地进行泛化。表 6显示，为了获得最佳性能，需要使用递归机制和我们的编码方案，并在评估期间将其推广到更长的注意序列。虽然在训练过程中反向传播的长度只有128，但是使用这两种技术，在测试时注意长度可以增加到640。在参数为 151M 的标准设置中，随着注意长度的增加，perplexity 减小。
+第一个研究是在WikiText-103上进行的，它需要建模长期依赖关系。结果见表6。在位置编码方案比较中，Shaw等人(2018)使用的是相对位置编码的，而Vaswani等(2017)和Al-Rfou等(2018)使用的绝对位置编码。“Full”损失和“half”损失是指将交叉熵损失应用于段中的所有或最近的一半位置。我们发现绝对位置编码只有在一半损失的情况下才能更好地工作，因为一半损失排除了训练中注意力很短的位置，以便更好地进行泛化。表6显示，为了获得最佳性能，需要使用递归机制和我们的编码方案，并在评估期间将其推广到更长的注意序列。虽然在训练过程中反向传播的长度只有128，但是使用这两种技术，在测试时可以将注意长度增加到640。在参数为151M的标准设置中，随着注意长度的增加，模型的perplexity减小。
 
 ![image-20210226234853529](E:\python_work_space\NLP_Paper_Translation\Transformer-XL_Translation\pic\fig5.png)
 
-由于递归机制需要额外的内存，我们还将 Transformer-XL 与相同GPU内存约束下的基线进行了比较。如附录A中的表10所示(不准备翻译附录，直接把表10放到上方了)，尽管使用了更短的反向传播长度，Transformer-XL 仍然优于基线。
+由于递归机制需要额外的内存，我们还将Transformer-XL与相同GPU内存约束下的基线模型进行了比较。如附录A中的表10所示，尽管使用了更短的反向传播长度，Transformer-XL仍然优于基线。
 
-第二项研究的目标是将解决上下文碎片问题的效果与获取更长的上下文长度的好处分离开来。为了实现这一目标，我们特意选择了一个不需要长期依赖关系的数据集，这样从建立递归得到的任何改进都可以归因于解决上下文碎片问题。具体来说，我们在 One Billion Word 数据集上执行这个受控实验，它只能从去除上下文碎片中获益。我们训练一个20层的 Transformer-XL，其中参数大约为 0.3B，训练 400K 步。如表7所示，即使不需要长期依赖，使用分段级递归也可以显著提高性能，这与我们之前讨论的递归机制解决上下文碎片问题是一致的。此外，我们的相对位置编码在短序列上也优于Shaw等人(2018)。
+![fig8](E:\python_work_space\NLP_Paper_Translation\Transformer-XL_Translation\pic\fig8.png)
+
+第二项研究的目标是将解决上下文碎片问题的效果与获取更长的上下文长度的好处分离开来。为了实现这一目标，我们特意选择了一个不需要长期依赖关系的数据集，这样从建立递归得到的任何改进都可以归因于解决上下文碎片问题。具体来说，我们在One Billion Word数据集上执行这个受控实验，它只能从去除上下文碎片中获益。我们训练一个20层的 Transformer-XL，其中参数大约为 0.3B，训练 400K 步。如表7所示，即使不需要长期依赖，使用分段级递归也可以显著提高性能，这与我们之前讨论的递归机制解决上下文碎片问题是一致的。此外，我们的相对位置编码在短序列上也优于Shaw等人(2018)的模型。
 
 ![image-20210226235021869](C:\Users\xudong\AppData\Roaming\Typora\typora-user-images\image-20210226235021869.png)
 
 
 
-
-
 #### 4.3 相对有效的上下文长度
 
-Khandelwal等(2018)提出了一种评估序列模型有效上下文长度(Effective Context Length ECL)的方法。ECL是增加上下文跨度将导致增益超过一个阈值的最长长度。然而，ECL忽略了这样一个事实，即当一个模型仅使用较短的上下文就可以获得较低的 perplexity 时，它就更难得到改进，因此不适合在多个模型之间进行公平的比较。相反，我们提出了一个新的度量方法，称为相对有效上下文长度(Relative Effective Context Length, RECL)。RECL是在模型组上而不是单个模型上定义的，长上下文的收益是通过对最佳短上下文模型的相对改进来衡量的。因此，模型组共享相同的基线，以支持公平的比较。RECL还有一个参数$r$，这意味着限制对top-$r$硬示例的比较。有关RECL的更多细节，请参见Appedix C。如表8所示，Transformer-XL 平均使用$r = 0.1$对 900 个单词的依赖关系进行建模。TransformerXL 的 RECL 分别比循环网络和 Transformer 长80%和450%。递归机制和我们的位置编码都有助于更长的 RECL。这进一步证实了我们的论点:Transformer-XL能够对长期依赖进行建模。
+Khandelwal等人(2018)提出了一种评估序列模型有效上下文长度(Effective Context Length ECL)的方法。ECL是增加上下文跨度将导致增益超过一个阈值的最长长度。然而，ECL忽略了这样一个事实，即当一个模型仅使用较短的上下文就可以获得较低的 perplexity 时，它就更难得到改进，因此不适合在多个模型之间进行公平的比较。相反，我们提出了一个新的度量方法，称为相对有效上下文长度(Relative Effective Context Length, RECL)。RECL是在模型组上而不是单个模型上定义的，长上下文的收益是通过对最佳短上下文模型的相对改进来衡量的。因此，模型组共享相同的基线，以支持公平的比较。RECL还有一个参数$r$，这意味着限制对top-$r$硬示例的比较。有关RECL的更多细节，请参见Appedix C。如表8所示，Transformer-XL 平均使用$r = 0.1$对 900 个单词的依赖关系进行建模。TransformerXL 的 RECL 分别比循环网络和 Transformer 长80%和450%。递归机制和我们的位置编码都有助于更长的 RECL。这进一步证实了我们的论点:Transformer-XL能够对长期依赖进行建模。
+
+![fig6](E:\python_work_space\NLP_Paper_Translation\Transformer-XL_Translation\pic\fig6.png)
 
 #### 4.4 文本生成
 
-只在中等大小的 WikiText-103 上进行了训练，Transforme-XL 已经能够生成具有数千个 tokens 的相对连贯的文章，而无需手动调整（cherry picking），尽管存在一些小缺陷。样品请参考附录E。（参考论文中的附录）
+只在中等大小的 WikiText-103 上进行了训练，Transforme-XL 已经能够生成具有数千个 tokens 的相对连贯的文章，而无需手动调整（cherry picking），尽管存在一些小缺陷。详细信息请参考附录E。
 
 #### 4.5 速度评估
 
-最后，我们将模型的评估速度与通用 Transformer 模型进行比较(Al-Rfou 等， 2018)。如表9所示，由于采用了状态重用方案，Transformer-XL 在评估过程中实现了高达1874倍的加速。
+最后，我们将模型的评估速度与通用 Transformer 模型进行比较(Al-Rfou 等，2018)。如表9所示，由于采用了状态重用方案，Transformer-XL 在评估过程中实现了高达1874倍的加速。
+
+![fig7](E:\python_work_space\NLP_Paper_Translation\Transformer-XL_Translation\pic\fig7.png)
 
 ### 5 结论
 
@@ -204,6 +208,76 @@ Transformer-XL 获得了较强的 perplexity 结果，与 RNNs 和 Transformer �
 
 
 ### 参考文献
+
+
+
+| 序号 | 论文                                                         |
+| ---- | ------------------------------------------------------------ |
+| 1    | Character-level language modeling with deeper self-attention |
+| 2    | Adaptive input representations for neural language modeling  |
+| 3    | Neural machine translation by jointly learning to align and translate |
+| 4    | An empirical evaluation of generic convolutional and recurrent networks for sequence modeling |
+| 5    | A neural probabilistic language model                        |
+| 6    | One billion word benchmark for measuring progress in statistical language modeling |
+| 7    | Hierarchical multiscale recurrent neural networks            |
+| 8    | Recurrent batch normalization                                |
+| 9    | Semi-supervised sequence learning                            |
+| 10   | Language modeling with gated convolutional networks          |
+| 11   | Bert: Pre-training of deep bidirectional transformers for language understanding |
+| 12   | A recurrent neural network with long-range semantic dependency |
+| 13   | A theoretically grounded application of dropout in recurrent neural networks |
+| 14   | Effificient softmax approximation for gpus                   |
+| 15   | Improving neural language models with a continuous cache     |
+| 16   | Generating sequences with recurrent neural networks          |
+| 17   | Neural turing machines                                       |
+| 18   | Hyper networks                                               |
+| 19   | Gradient flflow in recurrent nets: the diffificulty of learning long-term dependencies |
+| 20   | Long short-term memory                                       |
+| 21   | An improved relative self-attention mechanism for transformer with application to music generation |
+| 22   | Tying word vectors and word classififiers: A loss framework for language modeling |
+| 23   | Document context language models                             |
+| 24   | Exploring the limits of language modeling                    |
+| 25   | Neural machine translation in linear time                    |
+| 26   | Sigsoftmax: Reanalysis of the softmax bottleneck             |
+| 27   | Sparse attentive backtracking: Temporal credit assignment through reminding |
+| 28   | Sharp nearby, fuzzy far away: How neural language models use context |
+| 29   | Bryon Knol. 2017. cmix v13. http://www.byronknoll.com/cmix.html |
+| 30   | A clockwork rnn                                              |
+| 31   | Multiplicative lstm for sequence modelling                   |
+| 32   | Factorization tricks for lstm networks                       |
+| 33   | A simple way to initialize recurrent networks of rectifified linear units |
+| 34   | Independently recurrent neural network (indrnn): Building a longer and deeper rnn |
+| 35   | Darts: Differentiable architecture search                    |
+| 36   | Large text compression benchmark                             |
+| 37   | Pushing the bounds of dropout                                |
+| 38   | Regularizing and optimizing lstm language models             |
+| 39   | An analysis of neural language modeling at multiple scales   |
+| 40   | Pointer sentinel mixture models                              |
+| 41   | Learning longer memory in recurrent neural networks          |
+| 42   | Recurrent neural network based language model                |
+| 43   | Context dependent recurrent neural network language model    |
+| 44   | Hierarchical probabilistic neural network language model     |
+| 45   | Fast-slow recurrent neural networks                          |
+| 46   | Understanding the exploding gradient problem                 |
+| 47   | Deep contextualized word representations                     |
+| 48   | Effificient neural architecture search via parameter sharing |
+| 49   | Using the output embedding to improve language models        |
+| 50   | Improving language understanding by generative pre-training  |
+| 51   | Fast parametric learning with activation memorization        |
+| 52   | Self-attention with relative position representations        |
+| 53   | Mesh-tensorflflow: Deep learning for supercomputers          |
+| 54   | Outrageously large neural networks: The sparsely-gated mixture-of-experts layer |
+| 55   | Skip-gram language modeling using sparse non-negative matrix probability estimation |
+| 56   | Learning longer-term dependencies in rnns with auxiliary losses |
+| 57   | Attention is all you need                                    |
+| 58   | Larger context language modelling                            |
+| 59   | Topic compositional neural language model                    |
+| 60   | Memory networks.                                             |
+| 61   | On multiplicative integration with recurrent neural networks |
+| 62   | Breaking the softmax bottleneck: A high-rank rnn language model |
+| 63   | Recurrent neural network regularization                      |
+| 64   | Recurrent highway networks                                   |
+| 65   | Neural architecture search with reinforcement learning       |
 
 
 
